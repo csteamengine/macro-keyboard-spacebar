@@ -1,92 +1,94 @@
 #include <Keyboard.h>
 
 #define SPACE 2
-#define LEFT 3
-#define RIGHT 4
+#define DOWN 4
+#define UP 3
 
 unsigned long debounceDelay = 50; 
 unsigned long lastDebounceTimeSpace = 0;
-unsigned long lastDebounceTimeLeft = 0;
-unsigned long lastDebounceTimeRight = 0;
+unsigned long lastDebounceTimeDown = 0;
+unsigned long lastDebounceTimeUp = 0;
 
 bool lastSpace = HIGH;
-bool lastLeft = HIGH;
-bool lastRight = HIGH;
+bool lastDown = HIGH;
+bool lastUp = HIGH;
 
 bool spaceState = HIGH;
-bool leftState = HIGH;
-bool rightState = HIGH;
+bool downState = HIGH;
+bool upState = HIGH;
 
-bool leftPressed = false;
-bool rightPressed = false;
+bool downPressed = false;
+bool upPressed = false;
 
 void setup() {
   // make pin 2 an input and turn on the
   // pullup resistor so it goes high unless
   // connected  to ground:
   pinMode(SPACE, INPUT_PULLUP);
-  pinMode(LEFT, INPUT_PULLUP);
-  pinMode(RIGHT, INPUT_PULLUP);
+  pinMode(DOWN, INPUT_PULLUP);
+  pinMode(UP, INPUT_PULLUP);
   Keyboard.begin();
   Serial.begin(9600);
 }
 
 void loop() {
   int spaceReading = digitalRead(SPACE);
-  int leftReading = digitalRead(LEFT);
-  int rightReading = digitalRead(RIGHT);
+  int downReading = digitalRead(DOWN);
+  int upReading = digitalRead(UP);
 
-  if(leftPressed && leftReading == HIGH){
-      Keyboard.write(KEY_LEFT_ARROW);
-      leftPressed = false;
+  if(downPressed && downReading == HIGH){
+      Keyboard.write(KEY_DOWN_ARROW);
+      downPressed = false;
   }
   
-  if(rightPressed && rightReading == HIGH){
-      Keyboard.write(KEY_RIGHT_ARROW);
-      rightPressed = false;
+  if(upPressed && upReading == HIGH){
+      Keyboard.write(KEY_UP_ARROW);
+      upPressed = false;
   }
 
   if(spaceReading != lastSpace){
     lastDebounceTimeSpace = millis();
   }
 
-  if(leftReading != lastLeft){
-    lastDebounceTimeLeft = millis();
+  if(downReading != lastDown){
+    lastDebounceTimeDown = millis();
   }
 
-  if(rightReading != lastRight){
-    lastDebounceTimeRight = millis();
+  if(upReading != lastUp){
+    lastDebounceTimeUp = millis();
   }
 
   if ((millis() - lastDebounceTimeSpace) > debounceDelay) {
     spaceState = spaceReading;
     if (spaceState == LOW) {
-      Keyboard.write(32);
+      Keyboard.press(' ');
+    }else{
+      Keyboard.release(' ');
     }
   }  
 
-  if ((millis() - lastDebounceTimeLeft) > debounceDelay) {
-    if (leftReading != leftState) {
-      leftState = leftReading;
+  if ((millis() - lastDebounceTimeDown) > debounceDelay) {
+    if (downReading != downState) {
+      downState = downReading;
       
-      if (leftState == LOW) {
-        leftPressed = true;
+      if (downState == LOW) {
+        downPressed = true;
       }
     }
   }
 
-  if ((millis() - lastDebounceTimeRight) > debounceDelay) {
-    if (rightReading != rightState) {
-      rightState = rightReading;
+  if ((millis() - lastDebounceTimeUp) > debounceDelay) {
+    if (upReading != upState) {
+      upState = upReading;
 
-      if (rightState == LOW) {
-        rightPressed = true;
+      if (upState == LOW) {
+        upPressed = true;
       }
     }
   }
 
   lastSpace = spaceReading;
-  lastLeft = leftReading;
-  lastRight = rightReading;
+  lastDown = downReading;
+  lastUp = upReading;
 
 }
